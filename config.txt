@@ -1,0 +1,22 @@
+# Channel configuration (CHANGE ME)
+Note = 5748376
+Board = 14327190
+#
+# Set this value below to set the amount of time until a note deletes itself if no message is set
+Expire = 130
+TimerNoteEnabled = 1
+Categories = Request, Note, To Do, Thank You!, Important
+#
+# Sync Channel  (IMPORTANT, README)
+#       > By customer request this function has been added to the script. Any boards on this channel will automatically have the same notes in the same positions.  Removed notes will be deleted automatically from all boards.
+#       > It is extremely important to test your setup with this as a board at Zero Rotation, and a new note created on the positive Y axis, will ALWAYS be on that side of the board, with the rotation applied.
+#       > Sync does NOT however sync admins, so notes on two boards could have different access lists as they would be paired to their parent board.
+#
+Sync = 3689269
+#
+# Below are the two settings to configure whether to send sync signals from this board, or to allow sync signals to come in.  (If output is disabled, delete sync will not be automatic.  Example: Admin board for keeping a record of notes)
+ # Sync Out means to send new notes that are created on this board. This also has the effect of disallowing delete signals from other boards
+# Sync In means to allow new note creation from other boards
+#
+SyncOutEnabled = 1
+SyncInputEnabled = 1
