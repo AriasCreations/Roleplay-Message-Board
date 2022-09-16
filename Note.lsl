@@ -101,7 +101,7 @@ Menu(integer perms, key kID){
     if(g_iTimerNote)sPrompt += "\nTimer: "+Timer2Str();
     sPrompt+="\n\nMessage: \n "+g_sNoteCard;
     
-    if(perms&PERM_DELETE || g_iDeletable)lButtons+=["Delete"];
+    if(perms&PERM_DELETE || g_iDeletable || perms&PERM_ADMIN)lButtons+=["Delete"];
     if(perms&PERM_TEAR_DOWN)lButtons+=["Tear Down"];
     if(perms&PERM_ADMIN)lButtons+=[Checkbox(g_iDeletable, "Deletable")];
 

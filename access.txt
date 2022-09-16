@@ -1,0 +1,10 @@
+#
+# Access Legend
+# Administrator: 10 ////// full powers
+# Config Manager: 5 // can edit the settings in menu, can also toggle deletable status on individual notes
+# Power to delete: 3 // only gets given the ability to delete any note, cannot change settings, no menu access
+# Read: 1 // the ability to read a note, if the board is set up to only allow reading by access list
+#
+#user name = <level>
+Tashia Redrose = 10
+allerbmu resident = 10
