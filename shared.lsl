@@ -121,6 +121,7 @@ integer Mask_DeleteOwn = 32;
 integer FLAG_ALIVE = 64; // Always on.
 integer Mask_GroupTags = 128;
 integer Mask_ExtraGroups = 256;
+integer Mask_ChattyNotes = 512;
 
 string g_sDiscord= "https://discord.gg/DrWwmMT9WJ";
 
@@ -152,7 +153,7 @@ list g_lAccess;
 
 
 
-string BOARD_VERSION = "2.900.091622.1602 (NOT FROM ZNI)";
+string BOARD_VERSION = "2.900.091622.1731";
 string g_sActual;
 
 string AUTODETECT_OBJECT = "Autodetect Group ID [ZNI]";
@@ -174,7 +175,7 @@ integer Invert(integer iMask, integer iBit)
 }
 
 integer g_iStartup=1;
-integer g_iNewVer=1;
+integer g_iNewVer=0;
 
 integer g_iSyncHandle=-1;
 
@@ -198,7 +199,7 @@ integer MODE_READ = 1;
 integer g_iSettingsMask = 0; // read from field 1, description
 
 list g_lReqs;
-//string URL = "";
+string URL = "";
 Send(string Req,string method){
     g_lReqs += [Req,method];
     Sends();
@@ -264,7 +265,7 @@ Main(key kID){
         return;
     } else {
         if(user_mode >= MODE_CFG){
-            lButtons += [Checkbox(bool((g_iSettingsMask & Mask_GroupOnly)), "Obj Group"), Checkbox(bool((g_iSettingsMask&Mask_Deletable)),"Deletable"), "NEW NOTE", Checkbox(bool((g_iSettingsMask&Mask_Create)), "Create"), Checkbox(bool((g_iSettingsMask&Mask_DeleteOwn)), "DeleteOwn"), "*HELP*"];
+            lButtons += [Checkbox(bool((g_iSettingsMask & Mask_GroupOnly)), "Obj Group"), Checkbox(bool((g_iSettingsMask&Mask_Deletable)),"Deletable"), "NEW NOTE", Checkbox(bool((g_iSettingsMask&Mask_Create)), "Create"), Checkbox(bool((g_iSettingsMask&Mask_DeleteOwn)), "DeleteOwn"), "*HELP*", Checkbox(bool((g_iSettingsMask & Mask_ChattyNotes)), "SilentNotes")];
 
             if(g_iSACL){
                 lButtons += ["* SACL *"];
@@ -348,11 +349,11 @@ string g_sPath;
 integer g_iSyncOp;
 string g_sSyncCommandStr;
 
-
 CheckUpdate()
 {
     llSay(0, "TO CHECK FOR UPDATES, YOU MUST OBTAIN A COPY OF THIS BOARD FROM https://marketplace.secondlife.com/p/Roleplay-Message-Board/20066045\n \n[ This copy is for debugging, development, or contributions only. The open sourced version is only for educational, and contribution purposes ]");
 }
+
 
 Question(string sQuestion, string sPath, list lButtons, string sHeader){
     if(lButtons!=[])

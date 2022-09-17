@@ -282,6 +282,7 @@ default
                         g_kPoster = (key)llJsonGetValue(m,["kID"]);
                         g_sDate = llGetDate();
                         g_sNoteCard = llBase64ToString(llJsonGetValue(m,["note"]));
+                        integer iChatty = (integer)llJsonGetValue(m,["silent"]);
 
                         g_iTimerNote = (integer)llJsonGetValue(m,["timer"]);
                         g_lTimerParams = llParseString2List(llJsonGetValue(m,["timer_params"]), [", ",","],[]);
@@ -294,7 +295,7 @@ default
                         g_iNoteListen=0;
                         llSetText("",ZERO_VECTOR,0);
                         
-                        
+                        if(iChatty)return;
                         llSay(0, "((Note Posted)) "+g_sPoster+": "+g_sNoteCard);
                     } else if(llJsonGetValue(m,["type"]) == "deletebyid")
                     {

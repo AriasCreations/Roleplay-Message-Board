@@ -133,6 +133,14 @@ default
                             break;
                         }
 
+                        case Checkbox(bool((g_iSettingsMask & Mask_ChattyNotes)), "SilentNotes"):
+                        {
+                            g_iSettingsMask = Invert(g_iSettingsMask, Mask_ChattyNotes);
+                            Serialize();
+
+                            break;
+                        }
+
                         case "Delete All":
                         {
                             llRegionSay(NOTE_CHANNEL, llList2Json(JSON_OBJECT, ["dest", NULL_KEY, "cmd", "delete"]));
@@ -198,7 +206,7 @@ default
                     if(g_sCategory=="TIMER")iTimerNote=1;
                     string sFinalNoteText = llStringToBase64("Type of note: "+g_sCategory+"\n\n"+sButton);
 
-                    list lNoteExtraParams = ["type", "set", "poster", llKey2Name(i), "note", sFinalNoteText, "timer", iTimerNote, "timer_params", g_sTimeParams, "kID", i];
+                    list lNoteExtraParams = ["type", "set", "poster", llKey2Name(i), "note", sFinalNoteText, "timer", iTimerNote, "timer_params", g_sTimeParams, "kID", i, "silent", bool((g_iSettingsMask & Mask_ChattyNotes))];
 
                     llRegionSayTo(g_kNote, NOTE_CHANNEL, llList2Json(JSON_OBJECT, ["dest", g_kNote]+lNoteExtraParams));
 
