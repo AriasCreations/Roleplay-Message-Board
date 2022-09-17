@@ -175,7 +175,7 @@ integer Invert(integer iMask, integer iBit)
 }
 
 integer g_iStartup=1;
-integer g_iNewVer=0;
+integer g_iNewVer=1;
 
 integer g_iSyncHandle=-1;
 
