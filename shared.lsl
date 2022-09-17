@@ -153,7 +153,7 @@ list g_lAccess;
 
 
 
-string BOARD_VERSION = "2.900.091622.1731";
+string BOARD_VERSION = "2.900.091622.1731 (NOT FROM ZNI)";
 string g_sActual;
 
 string AUTODETECT_OBJECT = "Autodetect Group ID [ZNI]";
