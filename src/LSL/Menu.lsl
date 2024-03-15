@@ -1,5 +1,4 @@
-//#include "MasterFile.lsl"
-#include "../../../ZNIMaster/MessageBoard/shared.lsl"
+#include "src/includes/shared.lsl"
 
 
 default

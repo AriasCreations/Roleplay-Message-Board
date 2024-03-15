@@ -1,17 +1,27 @@
-//#include "MasterFile.lsl"
-#include "../../../ZNIMaster/MessageBoard/shared.lsl"
+#include "src/includes/shared.lsl"
 
 default
 {
     state_entry()
     {
-        //llSay(0, "Stand by..");
+        
         g_kID = (key)llGetObjectDesc();
         if(g_kID == "" || g_kID == "(No Description)" || g_kID == "FIRSTREZ" || g_kID == "0"){
             llSay(0, "First Rez!");
             state setup;
         }
-        state ready;
+        resetServiceDaemon();
+        llSetText("Waitinf for Service Negotiation", <1,0,0>,1);
+    }
+
+    link_message(integer s,integer n,string m,key i)
+    {
+        if(n == 0x004f)
+        {
+            API_SERVER = DecipherService(m,"api") + "/zni";
+
+            state ready;
+        }
     }
     on_rez(integer t){
         llResetScript();
@@ -25,11 +35,20 @@ default
 state setup
 {
     state_entry(){
-        llSetText("First Rez\n* Setup mode",<1,0,0>,1);
+        llSetText("First Rez\n* Setup mode\n\n> Waiting for Service Negotiation",<1,0,0>,1);
         g_kUser = llGetOwner();
         g_iUser = llRound(llFrand(5487358));
         llListen(g_iUser,"",g_kUser,"");
-        Question("Is this a new message board, or an updated one?", "/setup", ["New", "Update"], "SETUP");
+        resetServiceDaemon();
+    }
+
+    link_message(integer s,integer n,string m,key i){
+        if(n == 0x004f)
+        {
+            llSetText("First Rez\n* Setup mode", <1,0,0>,1);
+            API_SERVER = DecipherService(m,"api") + "/zni";
+            Question("Is this a new message board, or an updated one?", "/setup", ["New", "Update"], "SETUP");
+        }
     }
     on_rez(integer t){
         llResetScript();
@@ -76,7 +95,7 @@ state ready
     {
         s("Starting up");
         /// - RESET THE MENU SCRIPT -
-        llResetOtherScript("Message Board Menu [ZNI]");
+        llResetOtherScript("Message Board Menu [AC]");
         // - Sleep to let Menu wake up and settle down -
         llSleep(2);
         //g_kAccessReader = llGetNotecardLine("Access", g_iAccessLine);

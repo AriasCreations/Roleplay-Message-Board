@@ -126,6 +126,16 @@ integer Mask_ChattyNotes = 512;
 string g_sDiscord= "https://discord.gg/DrWwmMT9WJ";
 
 
+string DecipherService(string payload, string ident)
+{
+    if(llJsonValueType(payload,[ident]) == JSON_INVALID)
+    {
+        return "";
+    }
+
+    return llJsonGetValue(payload, [ident,"protocol"]) + "://" + llJsonGetValue(payload,[ident,"host"]) + ":" + llJsonGetValue(payload,[ident,"port"]);
+}
+
 vector g_vTouchPos;
 key g_kNote;
 key g_kNoteCreator;
@@ -153,10 +163,10 @@ list g_lAccess;
 
 
 
-string BOARD_VERSION = "2.900.091622.1731 (NOT FROM ZNI)";
+string BOARD_VERSION = "2.900.031524.1410 (NOT FROM AC)";
 string g_sActual;
 
-string AUTODETECT_OBJECT = "Autodetect Group ID [ZNI]";
+string AUTODETECT_OBJECT = "Autodetect Group ID [AC]";
 integer g_iAutodetect=0;
 list g_lGroups = [];
 list g_lGroupTags = [];
@@ -212,16 +222,18 @@ Sends(){
 }
 key g_kCurrentReq = NULL_KEY;
 integer DEBUG=FALSE;
+string API_SERVER = "";
 DoNextRequest(){
     if(llGetListLength(g_lReqs)==0)return;
     list lTmp = llParseString2List(llList2String(g_lReqs,0),["?"],[]);
-    if(DEBUG)llSay(0, "SENDING REQUEST: "+URL+llList2String(g_lReqs,0));
+    if(DEBUG)llSay(0, "SENDING REQUEST: "+API_SERVER+llList2String(g_lReqs,0));
     
     string append = "";
     if(llList2String(g_lReqs,1) == "GET")append = "?"+llDumpList2String(llList2List(lTmp,1,-1),"?");
     
-    g_kCurrentReq = llHTTPRequest(URL + llList2String(lTmp,0) + append, [HTTP_METHOD, llList2String(g_lReqs,1), HTTP_MIMETYPE, "application/x-www-form-urlencoded"], llDumpList2String(llList2List(lTmp,1,-1),"?"));
+    g_kCurrentReq = llHTTPRequest(API_SERVER + llList2String(lTmp,0) + append, [HTTP_METHOD, llList2String(g_lReqs,1), HTTP_MIMETYPE, "application/x-www-form-urlencoded"], llDumpList2String(llList2List(lTmp,1,-1),"?"));
 }
+
 
 
 s(string m){
@@ -254,7 +266,7 @@ integer bool(integer test){
 Main(key kID){
     // Admin menu
     list lButtons = [];
-    string sPrompt = "Message Board: "+BOARD_VERSION+"\nCopyright 2022 ZNI Creations\n";
+    string sPrompt = "Message Board: "+BOARD_VERSION+"\nCopyright 2024 Aria's Creations\n";
     integer user_mode = llList2Integer(g_lAccess, llListFindList(g_lAccess, [(string)kID])+1);
     if(g_iNewVer){
         sPrompt+="\n*UPDATE AVAILABLE*";
@@ -357,9 +369,16 @@ CheckUpdate()
 
 Question(string sQuestion, string sPath, list lButtons, string sHeader){
     if(lButtons!=[])
-        llDialog(g_kUser, "["+sHeader+"]\n[->Roleplay Message Board "+BOARD_VERSION+"<-]\n\n© ZNI Creations 2022\n\n"+sQuestion, lButtons, g_iUser);
+        llDialog(g_kUser, "["+sHeader+"]\n[->Roleplay Message Board "+BOARD_VERSION+"<-]\n\n© Aria's Creations 2024\n\n"+sQuestion, lButtons, g_iUser);
     else
-        llTextBox(g_kUser, "["+sHeader+"]\n[->Roleplay Message Board "+BOARD_VERSION+"<-]\n\n© ZNI Creations 2022\n\n"+sQuestion, g_iUser);
+        llTextBox(g_kUser, "["+sHeader+"]\n[->Roleplay Message Board "+BOARD_VERSION+"<-]\n\n© Aria's Creations 2024\n\n"+sQuestion, g_iUser);
     
     g_sPath = sPath;
+}
+
+
+integer RESET_SERVICE_DAEMON = -12082023;
+resetServiceDaemon()
+{
+    llMessageLinked(LINK_SET, RESET_SERVICE_DAEMON, "", "");
 }

@@ -1,0 +1,1 @@
+#include "src/LSL/Autodetect.lsl"
