@@ -46,6 +46,10 @@ state ready
         UpdateDSRequest(NULL, llGetNotecardLine("Access", 0), SetDSMeta(["read_access",0]));
         
         s("Reading access lists");
+
+        if(llLinksetDataRead("genuine") != "1") {
+            BOARD_VERSION += " (OSS Version)";
+        }
         
         g_iStartup=1;
     }
@@ -201,6 +205,7 @@ state ready
             llSay(0, "Hello, thank you for your purchase of a Aria's Creations product. I'll now reset and begin the setup process. Please wait a moment. If you have any questions, please contact Aria either in-world or via Discord. " + g_sDiscord + "\n\n[ Thank you for your purchase! ]");
 
             llSetObjectDesc("");
+            llLinksetDataWrite("genuine", "1");
         }
         llResetScript();
     }

@@ -6,6 +6,10 @@ default
     state_entry()
     {
 
+
+        if(llLinksetDataRead("genuine") != "1") {
+            BOARD_VERSION += " (OSS Version)";
+        }
     }
     
     link_message(integer s,integer n,string m,key i)
