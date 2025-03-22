@@ -268,9 +268,6 @@ Main(key kID){
     list lButtons = [];
     string sPrompt = "Message Board: "+BOARD_VERSION+"\nCopyright 2025 Aria's Creations\n";
     integer user_mode = llList2Integer(g_lAccess, llListFindList(g_lAccess, [(string)kID])+1);
-    if(g_iNewVer){
-        sPrompt+="\n*UPDATE AVAILABLE*";
-    }
     if(user_mode <= MODE_DEL){
         // create a note instead
         MakeNote(kID);
