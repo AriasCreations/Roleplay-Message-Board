@@ -16,6 +16,7 @@ string Checkbox(integer iValue, string sLabel) {
     return llList2String(g_lCheckboxes, bool(iValue))+" "+sLabel;
 }
 
+key g_kLastOwner;
 list g_lDSRequests;
 key NULL=NULL_KEY;
 UpdateDSRequest(key orig, key new, string meta){

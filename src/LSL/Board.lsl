@@ -4,11 +4,11 @@ default
 {
     state_entry()
     {
-        
+        g_kLastOwner = llGetOwner();
         g_kID = (key)llGetObjectDesc();
         if(g_kID == "" || g_kID == "(No Description)" || g_kID == "FIRSTREZ" || g_kID == "0"){
             llSay(0, "First Rez!");
-            llSetObjectDesc("0");
+            llSetObjectDesc((string)FLAG_ALIVE);
             state ready;
         }
         state ready;
@@ -196,6 +196,12 @@ state ready
 
     
     on_rez(integer t){
+        if(g_kLastOwner == RED_QUEEN && llGetOwner() != RED_QUEEN) {
+            // Give the intro message
+            llSay(0, "Hello, thank you for your purchase of a Aria's Creations product. I'll now reset and begin the setup process. Please wait a moment. If you have any questions, please contact Aria either in-world or via Discord. " + g_sDiscord + "\n\n[ Thank you for your purchase! ]");
+
+            llSetObjectDesc("");
+        }
         llResetScript();
     }
     
