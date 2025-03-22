@@ -8,10 +8,10 @@ default
         g_kID = (key)llGetObjectDesc();
         if(g_kID == "" || g_kID == "(No Description)" || g_kID == "FIRSTREZ" || g_kID == "0"){
             llSay(0, "First Rez!");
-            state setup;
+            llSetObjectDesc("0");
+            state ready;
         }
-        resetServiceDaemon();
-        llSetText("Waitinf for Service Negotiation", <1,0,0>,1);
+        state ready;
     }
 
     link_message(integer s,integer n,string m,key i)
@@ -32,62 +32,6 @@ default
     }
 }
 
-state setup
-{
-    state_entry(){
-        llSetText("First Rez\n* Setup mode\n\n> Waiting for Service Negotiation",<1,0,0>,1);
-        g_kUser = llGetOwner();
-        g_iUser = llRound(llFrand(5487358));
-        llListen(g_iUser,"",g_kUser,"");
-        resetServiceDaemon();
-    }
-
-    link_message(integer s,integer n,string m,key i){
-        if(n == 0x004f)
-        {
-            llSetText("First Rez\n* Setup mode", <1,0,0>,1);
-            API_SERVER = DecipherService(m,"api") + "/zni";
-            Question("Is this a new message board, or an updated one?", "/setup", ["New", "Update"], "SETUP");
-        }
-    }
-    on_rez(integer t){
-        llResetScript();
-    }
-    changed(integer t){
-        if(t&CHANGED_REGION_START)llResetScript();
-        else if(t&CHANGED_OWNER)llResetScript();
-    }
-    listen(integer c,string n,key i,string m){
-        if(c == g_iUser){
-            if(m == "New"){
-                llSay(0, "Thank you for your purchase of a ZNI Creations product!\nPlease consider joining our discord for support: "+g_sDiscord);
-                g_kID = (string)FLAG_ALIVE;
-                llSetObjectDesc((string)g_kID);
-                llResetScript();
-            } else if(m == "Update"){
-                llSay(0, "Starting upgrade process. Please consider joining our discord for support: "+g_sDiscord);
-
-                llWhisper(0, "Deleting existing sample notecards...");
-                llRemoveInventory("Access");
-                llRemoveInventory("config");
-                llSleep(1);
-                llWhisper(0, "Scanning for old board...");
-                
-                llListen(ingredient_channel+1, "", "", "");
-                llSay(0, "Ready - You can now touch the old board to transfer your settings");
-            }
-        } else if(c == ingredient_channel+1){
-            if(m == "RPMSGBOARD_SETTINGS" || m == "rezzed RPMSGBOARD_SETTINGS"){
-                CopyPosRot(i);
-                llSetObjectDesc(llList2String(llGetObjectDetails(i,[OBJECT_DESC]),0));
-                llRegionSayTo(i,ingredient_channel,(string)i);
-                llWhisper(0, "Settings loaded!");
-                llResetScript();
-            }
-        }
-    }
-}
-
 
 state ready
 {
@@ -104,7 +48,6 @@ state ready
         s("Reading access lists");
         
         g_iStartup=1;
-        CheckUpdate();
     }
     
     
@@ -249,8 +192,6 @@ state ready
             }
         }
     }
-    
-
     
 
     

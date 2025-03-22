@@ -194,29 +194,13 @@ default
 
                             break;
                         }
-                        GetArbitraryData(g_kNoteCreator,"What message do you want to post?", "note~text");
+                        integer iTimer = 0;
+                        if(g_sCategory == "TIMER") iTimer=1;
+                        llRegionSayTo(g_kNote, NOTE_CHANNEL, llList2Json(JSON_OBJECT, ["author", g_kNoteCreator, "dest", g_kNote, "rotate", llGetRot(), "timer", iTimer, "timer_params", g_sTimeParams, "silent", ((g_iSettingsMask & Mask_ChattyNotes)), "cmd", "load_text"]));
+                        //GetArbitraryData(g_kNoteCreator,"What message do you want to post?", "note~text");
+
+                        // MAR 22 2025 : As of this version, Sync is deferred to happen only when the note text is finalized. This is specifically to bypass the LSL restrictions on textbox length. This will allow the note to be created, and then the sync to be performed after the note is created.
                     }
-                    break;
-                }
-                case "note~text":
-                {
-                    llRegionSayTo(g_kNote, NOTE_CHANNEL, llList2Json(JSON_OBJECT, ["dest", g_kNote, "rotate", llGetRot()]));
-                    integer iTimerNote=0;
-                    if(g_sCategory=="TIMER")iTimerNote=1;
-                    string sFinalNoteText = llStringToBase64("Type of note: "+g_sCategory+"\n\n"+sButton);
-
-                    list lNoteExtraParams = ["type", "set", "poster", llKey2Name(i), "note", sFinalNoteText, "timer", iTimerNote, "timer_params", g_sTimeParams, "kID", i, "silent", bool((g_iSettingsMask & Mask_ChattyNotes))];
-
-                    llRegionSayTo(g_kNote, NOTE_CHANNEL, llList2Json(JSON_OBJECT, ["dest", g_kNote]+lNoteExtraParams));
-
-                    if(g_iSyncDown){
-                        // Perform the sync
-                        vector vLocal = (g_vTouchPos-llGetPos());
-                        if(llGetRot()!=ZERO_ROTATION)vLocal /= llGetRot(); // Get the true local
-                        string sCommandStr = llList2Json(JSON_OBJECT, ["pos", vLocal, "note", llList2Json(JSON_OBJECT, lNoteExtraParams)]);
-                        llRegionSay(g_iSync, llList2Json(JSON_OBJECT, ["op", "make", "cmd", sCommandStr]));
-                    }
-
                     break;
                 }
                 case "menu~sacl":
@@ -529,6 +513,20 @@ default
                     //llSay(0, "non-group with permissions: "+(string)iPerms);
                     llRegionSay( NOTE_CHANNEL, llList2Json(JSON_OBJECT, ["dest", i, "access", access, "perms", iPerms, "user", kTmp]));
                 }
+            } else if( llJsonGetValue(m, ["cmd"])== "note_finished") {
+                // Note is now ready. Check if sync is enabled.
+                if(!g_iSyncDown) return; // Sync is disabled, we can ignore the rest of this message.
+
+                list lNoteExtraParams = ["type", "set", "poster", llJsonGetValue(m,["author","name"]), "note", llJsonGetValue(m,["data"]), "timer", llJsonGetValue(m,["timer"]), "timer_params", g_sTimeParams, "kID", llJsonGetValue(m,["author", "author"]), "silent", bool((g_iSettingsMask & Mask_ChattyNotes))];
+
+                if(g_iSyncDown){
+                    // Perform the sync
+                    vector vLocal = (g_vTouchPos-llGetPos());
+                    if(llGetRot()!=ZERO_ROTATION)vLocal /= llGetRot(); // Get the true local
+                    string sCommandStr = llList2Json(JSON_OBJECT, ["pos", vLocal, "note", llList2Json(JSON_OBJECT, lNoteExtraParams)]);
+                    llRegionSay(g_iSync, llList2Json(JSON_OBJECT, ["op", "make", "cmd", sCommandStr]));
+                }
+
             }
                         
         } else if(c == g_iSync)

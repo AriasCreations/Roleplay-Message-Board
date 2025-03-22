@@ -8,6 +8,8 @@ string g_sDate;
 key g_kPoster;
 integer g_iNoteListen;
 integer g_iMenuChan;
+integer g_iAuthorChannel;
+integer g_iVerbose;
 integer g_iMenuHandle;
 integer g_iTornDown=FALSE;
 integer g_iDeletable=FALSE;
@@ -190,6 +192,17 @@ ReListen()
     if(g_iNoteChnLstn!=-1)llListenRemove(g_iNoteChnLstn);
     g_iNoteChnLstn=llListen(NOTE_CHANNEL, "", "","");
 }
+
+SaveNoteData() {
+    llLinksetDataWrite("author", llList2Json(JSON_OBJECT, ["author", g_kPoster, "name", g_sPoster]));
+    llLinksetDataWrite("date", g_sDate);
+}
+
+PromptAuthor() {
+    string sText = "What message do you want to post?\n\n* For longer messages, you can type it out on channel (/" + (string)g_iAuthorChannel + "), or you can type it here. Keep each message under 250 chars, when done, submit a blank message.";
+
+    llTextBox(g_kPoster, sText, g_iAuthorChannel);
+}
 default
 {
     state_entry()
@@ -270,6 +283,29 @@ default
                         llSetRot((rotation)llJsonGetValue(m,["rotate"]));
                     } else if(llJsonGetValue(m,["cmd"])=="delete"){
                         DeleteNote();
+                    } else if(llJsonGetValue(m,["cmd"]) == "load_text") {
+                        // New note data handling.
+                        // Here, we'll set all the properties originally set by the finalization signal. 
+                        // New workflow dictates the note must then prompt the author for the text, until they submit a empty textbox.
+                        // After finalized, we need to inform the board about our text. If sync is enabled, it will handle note cloning.
+                        g_kPoster = llJsonGetValue(m,["author"]);
+                        g_sPoster = llGetDisplayName(g_kPoster) + " (" + llKey2Name(g_kPoster) + ")";
+                        g_sDate = llGetDate();
+
+                        g_sNoteCard = ""; // Clear any existing text
+
+                        g_iVerbose = (integer)llJsonGetValue(m,["silent"]);
+
+                        g_iTimerNote = (integer)llJsonGetValue(m,["timer"]);
+                        g_lTimerParams = llParseString2List(llJsonGetValue(m,["timer_params"]), [", ",","],[]);
+
+                        llListenRemove(g_iNoteListen);
+
+                        g_iAuthorChannel = llRound(llFrand(0xFFFF));
+                        g_iNoteListen = llListen(g_iAuthorChannel, "", g_kPoster, "");
+                        PromptAuthor();
+                        
+                        SaveNoteData();
                     } else if(llJsonGetValue(m,["type"])=="set"){
                         
                         //list lTmp = llGetObjectDetails(i, [OBJECT_POS]);
@@ -307,7 +343,36 @@ default
                 }
 
             }
-            
+        } else if(c == g_iAuthorChannel) {
+            // We've got some data!
+            g_sNoteCard += m + "\n";
+            if(m == "") {
+
+                IsNote();
+                // We've gotten the full message.
+                // Save note data to the LSD.
+                llLinksetDataWrite("data", g_sNoteCard);
+                // Calculate the subuid
+                g_sNoteInternalID = llMD5String(g_sNoteCard, 0);
+                // Inform the board that we're ready to go.
+                llSay(MB_CHANNEL, llList2Json(JSON_OBJECT, ["cmd", "note_finished", "id", llGetKey(), "subid", g_sNoteInternalID, "data", g_sNoteCard, "date", g_sDate, "author", llLinksetDataRead("author"), "timer", g_iTimerNote, "timer_params", llList2Json(JSON_ARRAY, g_lTimerParams)]));
+
+                llSetTimerEvent(0);
+                llSetText("", ZERO_VECTOR, 0);
+
+                if(g_iTimerNote)llSetTimerEvent(1);
+
+                llListenRemove(g_iNoteListen);
+                g_iNoteListen = 0;
+
+                if(!g_iVerbose) {
+                    llSay(0, "((Note Posted)) "+g_sPoster+": "+g_sNoteCard);
+                }
+            }else {
+                // Reset the expire timer
+                llResetTime();
+                PromptAuthor();
+            }
         } else if(c == g_iMenuChan){
             if(m == "-exit-"){
                 llListenRemove(g_iMenuHandle);

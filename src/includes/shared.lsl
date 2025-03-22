@@ -123,7 +123,7 @@ integer Mask_GroupTags = 128;
 integer Mask_ExtraGroups = 256;
 integer Mask_ChattyNotes = 512;
 
-string g_sDiscord= "https://discord.gg/DrWwmMT9WJ";
+string g_sDiscord= "https://discord.gg/QfEEKhyuY2";
 
 
 string DecipherService(string payload, string ident)
@@ -163,7 +163,7 @@ list g_lAccess;
 
 
 
-string BOARD_VERSION = "2.900.031524.1410 (NOT FROM AC)";
+string BOARD_VERSION = "2.901.032225.0853";// (NOT FROM AC)";
 string g_sActual;
 
 string AUTODETECT_OBJECT = "Autodetect Group ID [AC]";
@@ -266,7 +266,7 @@ integer bool(integer test){
 Main(key kID){
     // Admin menu
     list lButtons = [];
-    string sPrompt = "Message Board: "+BOARD_VERSION+"\nCopyright 2024 Aria's Creations\n";
+    string sPrompt = "Message Board: "+BOARD_VERSION+"\nCopyright 2025 Aria's Creations\n";
     integer user_mode = llList2Integer(g_lAccess, llListFindList(g_lAccess, [(string)kID])+1);
     if(g_iNewVer){
         sPrompt+="\n*UPDATE AVAILABLE*";
@@ -363,22 +363,15 @@ string g_sSyncCommandStr;
 
 CheckUpdate()
 {
-    llSay(0, "TO CHECK FOR UPDATES, YOU MUST OBTAIN A COPY OF THIS BOARD FROM https://marketplace.secondlife.com/p/Roleplay-Message-Board/20066045\n \n[ This copy is for debugging, development, or contributions only. The open sourced version is only for educational, and contribution purposes ]");
+    llSay(0, "As of Mar 22 2025, the latest version has removed the internal update checks. Please check the marketplace for the latest version.");
 }
 
 
 Question(string sQuestion, string sPath, list lButtons, string sHeader){
     if(lButtons!=[])
-        llDialog(g_kUser, "["+sHeader+"]\n[->Roleplay Message Board "+BOARD_VERSION+"<-]\n\n© Aria's Creations 2024\n\n"+sQuestion, lButtons, g_iUser);
+        llDialog(g_kUser, "["+sHeader+"]\n[->Roleplay Message Board "+BOARD_VERSION+"<-]\n\n© Aria's Creations 2025\n\n"+sQuestion, lButtons, g_iUser);
     else
-        llTextBox(g_kUser, "["+sHeader+"]\n[->Roleplay Message Board "+BOARD_VERSION+"<-]\n\n© Aria's Creations 2024\n\n"+sQuestion, g_iUser);
+        llTextBox(g_kUser, "["+sHeader+"]\n[->Roleplay Message Board "+BOARD_VERSION+"<-]\n\n© Aria's Creations 2025\n\n"+sQuestion, g_iUser);
     
     g_sPath = sPath;
-}
-
-
-integer RESET_SERVICE_DAEMON = -12082023;
-resetServiceDaemon()
-{
-    llMessageLinked(LINK_SET, RESET_SERVICE_DAEMON, "", "");
 }

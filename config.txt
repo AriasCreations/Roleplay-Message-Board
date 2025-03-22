@@ -31,9 +31,9 @@ SecondaryACL = 0
 
 SACLTag = Test Group Tag
 SACLTag = Tag 2
-SACLTag = Beta Tester [ZNI]
+SACLTag = Beta Tester [AC]
 
 
-# Change me, this is the ZNI Creations group.
+# Change me, this is the Aria's Creations group.
 # Similar to SACLTag, you can have more than one SACLGroup by just adding extra entries to this notecard.
-SACLGroup = e40d4a13-6921-780f-15a8-46daa49b51c2
+SACLGroup = fe849dc9-1217-a850-6c81-7a95cfb0a81e
