@@ -164,7 +164,7 @@ list g_lAccess;
 
 
 
-string BOARD_VERSION = "2.901.032225.0853";// (NOT FROM AC)";
+string BOARD_VERSION = "2.901.032425.1154";// (NOT FROM AC)";
 string g_sActual;
 
 string AUTODETECT_OBJECT = "Autodetect Group ID [AC]";

@@ -91,7 +91,7 @@ string Timer2Str(){
 
 Menu(integer perms, key kID){
     list lButtons = ["-exit-"];
-    string sPrompt = "Message left by: "+g_sPoster;
+    string sPrompt = "Message left by: secondlife:///app/agent/"+(string)g_kPoster + "/about";
     
     if(g_iTornDown){
         lButtons += ["Put Back"];
@@ -101,7 +101,13 @@ Menu(integer perms, key kID){
     sPrompt += "\nDeletable: "+tf((g_iDeletable || perms&PERM_DELETE));
     sPrompt += "\nDate posted: "+g_sDate;
     if(g_iTimerNote)sPrompt += "\nTimer: "+Timer2Str();
-    sPrompt+="\n\nMessage: \n "+g_sNoteCard;
+    if(getStringBytes(g_sNoteCard) >= 373) {
+        sPrompt += "\n\nMessage is too long, and cannot be shown in a single dialog.";
+        lButtons += ["-ReadMsg-"];
+    }else {
+        sPrompt+="\n\nMessage: \n "+g_sNoteCard;
+        lButtons += ["-"];
+    }
     
     if(perms&PERM_DELETE || g_iDeletable || perms&PERM_ADMIN)lButtons+=["Delete"];
     if(perms&PERM_TEAR_DOWN)lButtons+=["Tear Down"];
@@ -115,6 +121,28 @@ Menu(integer perms, key kID){
     
     llResetTime();
     llSetTimerEvent(1);
+
+    llSay(0, "Length: " + (string)getStringBytes(sPrompt));
+}
+
+integer incrementIfPositive(integer iNum) {
+    if(iNum) return iNum+1;
+    else return iNum;
+}
+ReadNote(integer iPage, key kID) {
+    string sPrompt = "-- Long Message Reader --\nCurrent Page: " + (string)(iPage+1) +"/" + (string)g_iTotalPages+ "\n\n";
+
+    llListenRemove(g_iMenuHandle);
+    g_iNoteRead = llRound(llFrand(0xFFFF));
+    g_iMenuHandle = llListen(g_iNoteRead, "", kID, "");
+
+    llResetTime();
+
+    string sPart = llGetSubString(g_sNoteCard, incrementIfPositive( ((g_iReadPage-1) * 450) ), (g_iReadPage)*450);
+
+    sPrompt += sPart;
+
+    llDialog(kID, sPrompt, ["<-- prev", "-", "next -->", "-main-", "-", "-"], g_iNoteRead);
 }
 
 DeleteNote(){
@@ -126,6 +154,12 @@ DeleteNote(){
     llDie();
 }
 integer g_iNoteChnLstn=-1;
+
+integer g_iReadPage;
+integer g_iTotalPages;
+integer g_iNoteRead;
+
+list g_lMessageParts;
 
 integer g_iExpireTime=120;
 integer g_iBootChannel;
@@ -198,8 +232,12 @@ SaveNoteData() {
     llLinksetDataWrite("date", g_sDate);
 }
 
+
+integer getStringBytes(string msg) {
+    return (llStringLength((string)llParseString2List(llStringToBase64(msg), ["="], [])) * 3) >> 2;
+}
 PromptAuthor() {
-    string sText = "What message do you want to post?\n\n* For longer messages, you can type it out on channel (/" + (string)g_iAuthorChannel + "), or you can type it here. Keep each message under 250 chars, when done, submit a blank message.";
+    string sText = "What message do you want to post?\n\n* For longer messages, you can type it out on channel (/" + (string)g_iAuthorChannel + "), or you can type it here. Keep each message under 250 chars, when done, submit a blank message.\n\nTotal Message Length: " + (string)getStringBytes(g_sNoteCard) + "\nNumber of pages: " + (string)(getStringBytes(g_sNoteCard) / 512 + 1);
 
     llTextBox(g_kPoster, sText, g_iAuthorChannel);
 }
@@ -383,6 +421,28 @@ default
             } else if(m == "Delete"){
                 // do delete
                 DeleteNote();
+            } else if(m == "-ReadMsg-") {
+                // Read the message in the dedicated multi-page note viewer
+                //ReadNote(0);
+                integer ix = 0;
+                integer iEnd = getStringBytes(g_sNoteCard) / 512 + 1;
+                integer iPart = 0;
+                g_lMessageParts = [];
+                for(ix = 0; ix<iEnd; ix++) {
+                    string sFragment = llGetSubString(g_sNoteCard, iPart, iPart + 512);
+
+                    iPart+=513;
+
+                    llRegionSayTo(i, 0, "[" + (string)ix + "] " + sFragment);
+                }
+
+                g_iReadPage = 1;
+                g_iTotalPages = iEnd;
+
+                ReadNote(g_iReadPage-1, i);
+
+                return;
+
             } else if(m == "Tear Down"){
                 // tear the note down
                 llSetAlpha(0.5,ALL_SIDES);
@@ -393,6 +453,20 @@ default
             } 
             
             llSay(MB_CHANNEL, llList2Json(JSON_OBJECT, ["cmd", "get_auth", "id", i]));
+        } else if(c == g_iNoteRead) {
+            if(m == "<-- prev") {
+                g_iReadPage --;
+                if(g_iReadPage < 1) g_iReadPage = 1;
+            } else if(m == "next -->") {
+                g_iReadPage ++;
+                if(g_iReadPage > g_iTotalPages) g_iReadPage = g_iTotalPages;
+            } else if(m == "-main-") {
+                llSay(MB_CHANNEL, llList2Json(JSON_OBJECT, ["cmd", "get_auth", "id", i]));
+            }
+
+
+
+            ReadNote(g_iReadPage-1, i);
         }else if(c==g_iBootChannel){
         
             
